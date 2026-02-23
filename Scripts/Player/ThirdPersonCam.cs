@@ -137,7 +137,6 @@ public class ThirdPersonCam : MonoBehaviour
 
         if(bestEnemy == null)
         {
-            Debug.Log("Fuck");
             return null;
         }
         

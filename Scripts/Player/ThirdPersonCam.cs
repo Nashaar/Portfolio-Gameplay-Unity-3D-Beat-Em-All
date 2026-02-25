@@ -108,10 +108,6 @@ public class ThirdPersonCam : MonoBehaviour
 
             Ray ray = new Ray(rayOrigin, dirToEnemy);
 
-            Debug.DrawRay(rayOrigin, dirToEnemy * cameraToEnemy, Color.red, 2f);
-            Debug.DrawLine(transform.position, enemyPoint, Color.green, 2f);
-            Debug.DrawRay(transform.position, transform.forward * 3f, Color.blue, 2f);
-
             if(Physics.Raycast(ray, out RaycastHit hit, cameraToEnemy))
             {
                 if(hit.collider.gameObject == enemyCollider.gameObject)
@@ -184,3 +180,4 @@ public class ThirdPersonCam : MonoBehaviour
     */
     #endregion
 }
+

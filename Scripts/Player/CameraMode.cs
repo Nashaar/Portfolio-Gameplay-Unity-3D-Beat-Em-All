@@ -15,6 +15,7 @@ public class CameraMode : MonoBehaviour
 
     [Header("Variables")]
     [SerializeField] private LayerMask _scanMask;
+    [SerializeField] private LayerMask _visibilityMask;
     [SerializeField] private float _scanRadius;
     private bool _isWalking, _isLocking;
     #endregion
@@ -56,7 +57,7 @@ public class CameraMode : MonoBehaviour
             _isWalking = false;
             _isLocking = true;
 
-            _thirdPersonCam.lockOnEnemy = _thirdPersonCam.BestTargetInView(_playerTransform, _scanRadius, _scanMask);
+            _thirdPersonCam.lockOnEnemy = _thirdPersonCam.BestTargetInView(_playerTransform, _scanRadius, _scanMask, _visibilityMask);
 
             if(_thirdPersonCam.lockOnEnemy == null)
             {
@@ -81,39 +82,4 @@ public class CameraMode : MonoBehaviour
         }
     }
     #endregion
-
-    /*#region Camera Target
-    private GameObject NearestEnemy(Vector3 player, float radius, LayerMask enemyMask)
-    {
-        GameObject _nearestEnemy = null;
-        float _nearestDistance = float.MaxValue;
-        float _distance;
-
-        Collider[] enemies = Physics.OverlapSphere(player, radius, enemyMask);
-        if(enemies.Length == 0)
-        {
-            return null;
-        }
-
-        foreach (var enemyCollider in enemies)
-        {
-            Vector3 _offset = enemyCollider.transform.position - playerPosition.position;
-            _distance = _offset.sqrMagnitude;
-
-            if(_distance < _nearestDistance)
-            {
-                _nearestDistance = _distance;
-                _nearestEnemy = enemyCollider.gameObject;
-            }
-        }
-        Debug.Log(_nearestEnemy.name);
-        
-
-        return _nearestEnemy.gameObject;
-
-        //var target = lockingCamera.Target;
-
-        //target.LookAtTarget = _nearestEnemy.transform;
-    }
-    #endregion*/
 }

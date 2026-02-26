@@ -1,4 +1,3 @@
-using Unity.Cinemachine;
 using UnityEngine;
 
 public class ThirdPersonCam : MonoBehaviour
@@ -48,8 +47,6 @@ public class ThirdPersonCam : MonoBehaviour
     {
         Vector2 cameraInputDirection = _inputController.MoveInput();
 
-               
-
         if(cameraStyle == CameraStyle.Walking)
         {
             Vector3 viewDirection = _playerTransform.position - new Vector3(transform.position.x, _playerTransform.position.y, transform.position.z);
@@ -70,21 +67,14 @@ public class ThirdPersonCam : MonoBehaviour
             playerDir.y = 0;
 
             _playerBodyTransform.forward = Vector3.Slerp(_playerBodyTransform.forward, playerDir.normalized, Time.fixedDeltaTime * _rotationSpeed);
-            //_playerOrientationTransform.LookAt(lockOnEnemy.transform.position);
             _playerTransform.forward = Vector3.Slerp(_playerTransform.forward, playerDir.normalized, Time.fixedDeltaTime * _rotationSpeed);
             _playerOrientationTransform.forward = Vector3.Slerp(_playerOrientationTransform.forward, direction.normalized, Time.fixedDeltaTime * _rotationSpeed);
-            //_lockingCamera.LookAt(lockOnEnemy.transform.position);
-
-            /*Vector3 directionToFightingLookAt = fightingLookAt.position - new Vector3(transform.position.x, fightingLookAt.position.y, transform.position.z);
-            playerOrientation.forward = directionToFightingLookAt.normalized;
-
-            playerBody.forward = directionToFightingLookAt.normalized;*/
         } 
     }
     #endregion
 
     #region Defini Lock-On
-    public GameObject BestTargetInView(Transform playerPosition, float radius, LayerMask enemyMask)
+    public GameObject BestTargetInView(Transform playerPosition, float radius, LayerMask enemyMask, LayerMask collisionMask)
     {
         GameObject bestEnemy = null;
         float bestScore = -1f;
@@ -100,35 +90,41 @@ public class ThirdPersonCam : MonoBehaviour
         foreach (var enemyCollider in enemies)
         {
             Vector3 enemyPoint = enemyCollider.bounds.center;
-            float cameraToEnemy = Vector3.Distance(transform.position, enemyPoint);
 
-            Vector3 rayOrigin = transform.position + transform.forward * 0.1f;
-            Vector3 dirToEnemy = (enemyPoint - rayOrigin).normalized;
+            Vector3 rayCameraOrigin = transform.position + transform.forward * 0.1f;
+            Vector3 camDirToEnemy = (enemyPoint - rayCameraOrigin).normalized;
 
+            float cameraToEnemy = Vector3.Distance(rayCameraOrigin, enemyPoint);
 
-            Ray ray = new Ray(rayOrigin, dirToEnemy);
+            Ray camRay = new Ray(rayCameraOrigin, camDirToEnemy);
 
-            if(Physics.Raycast(ray, out RaycastHit hit, cameraToEnemy))
+            if(!Physics.Raycast(camRay, out RaycastHit cameraHit, cameraToEnemy, collisionMask))
             {
-                if(hit.collider.gameObject == enemyCollider.gameObject)
-                {
-                    float dot = Vector3.Dot(camForward, dirToEnemy);
-
-                    if(dot < 0.05f)
-                    {
-                        continue;
-                    }
-
-                    float distanceToEnemy = Vector3.Distance(_playerTransform.position, enemyPoint);
-                    float score = dot - (distanceToEnemy * 0.01f);
-
-                    if(score > bestScore)
-                    {
-                        bestScore = score;
-                        bestEnemy = enemyCollider.gameObject;
-                    }
-                }
+                continue;
             }
+
+            if(cameraHit.collider.gameObject != enemyCollider.gameObject)
+            {
+                continue;
+            }
+
+            float dot = Vector3.Dot(camForward, camDirToEnemy);
+
+            if(dot < 0.05f)
+            {
+                continue;
+            }
+
+            float distanceToEnemy = Vector3.Distance(_playerTransform.position, enemyPoint);
+            float score = dot - (distanceToEnemy * 0.01f);
+
+            if(score <= bestScore)
+            {
+                continue;
+            }
+
+            bestScore = score;
+            bestEnemy = enemyCollider.gameObject;
         }
 
         if(bestEnemy == null)
@@ -139,45 +135,5 @@ public class ThirdPersonCam : MonoBehaviour
         Debug.Log(bestEnemy.name);
         return bestEnemy;
     }
-
-    /*
-    public GameObject BestTargetInView(Transform playerPosition, float radius, LayerMask enemyMask)
-    {
-        GameObject _nearestEnemy = null;
-        float _nearestDistance = float.MaxValue;
-        float _distance;
-
-        Collider[] enemies = Physics.OverlapSphere(playerPosition.position, radius, enemyMask);
-        if(enemies.Length == 0)
-        {
-            return null;
-        }
-
-        Vector3 camForward = transform.forward;
-
-        foreach (var enemyCollider in enemies)
-        {
-            Vector3 dirToEnemy = (enemyCollider.transform.position - transform.position).normalized;
-
-            Vector3 _offset = enemyCollider.transform.position - playerPosition.position;
-            _distance = _offset.sqrMagnitude;
-
-            if(_distance < _nearestDistance)
-            {
-                _nearestDistance = _distance;
-                _nearestEnemy = enemyCollider.gameObject;
-            }
-        }
-        Debug.Log(_nearestEnemy.name);
-        
-
-        return _nearestEnemy.gameObject;
-
-        //var target = lockingCamera.Target;
-
-        //target.LookAtTarget = _nearestEnemy.transform;
-    }
-    */
     #endregion
 }
-

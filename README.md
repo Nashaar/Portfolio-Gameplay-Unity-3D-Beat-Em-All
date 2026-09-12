@@ -36,6 +36,3 @@ This repository contains only the core gameplay scripts for demonstration purpos
 
 ## Video Demonstration
 https://youtu.be/4ylEQflGLy0
-
-## Author
-Tom BAUDIN - Gameplay programming student - Unity / C# - https://portfolio-geii-2a.tom-baudin.fr
